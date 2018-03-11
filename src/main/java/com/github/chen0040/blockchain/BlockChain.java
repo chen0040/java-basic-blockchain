@@ -99,6 +99,42 @@ public class BlockChain {
         return true;
     }
 
+    public boolean resolveConflicts() {
+        List<String> neighbors = new ArrayList<>(nodes);
+        List<Block> newChain = null;
+
+        // only looking for chains longer than that available at this node.
+        int max_length = chain.size();
+
+        for(String neighbor : neighbors) {
+            List<Block> chain = queryChain(neighbor);
+            if(chain == null) {
+                continue;
+            }
+            if(chain.size() <= max_length) {
+                continue;
+            }
+            if(!validateChain(chain)) {
+                continue;
+            }
+            max_length = chain.size();
+            newChain = chain;
+        }
+
+        if(newChain != null) {
+            chain = newChain;
+            return true;
+        }
+        return false;
+
+
+    }
+
+    private List<Block> queryChain(String url) {
+        return null;
+    }
+
+
 
 
 
