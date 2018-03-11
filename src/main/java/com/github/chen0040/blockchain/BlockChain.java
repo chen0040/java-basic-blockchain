@@ -1,6 +1,7 @@
 package com.github.chen0040.blockchain;
 
 import com.alibaba.fastjson.JSON;
+import com.github.chen0040.blockchain.utils.HttpClient;
 import com.google.common.hash.Hashing;
 import lombok.Getter;
 import lombok.Setter;
@@ -131,7 +132,7 @@ public class BlockChain {
     }
 
     private List<Block> queryChain(String url) {
-        return null;
+        return HttpClient.getArray(url + "/chain", Block.class);
     }
 
 
