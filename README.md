@@ -28,10 +28,10 @@ seed node to broadcast its ip address.
 
 The following api is available for the block chain:
 
-* http://localhost:3088/mine: mine by running proof-of-work
+* http://localhost:3088/mine: mine by running proof-of-work in the current node
 * http://localhost:3088/nodes/resolve: achieve consensus in the block chain network by resolving conflicts
-* http://localhost:3088/transactions/new: add a new transaction to the block chain
-* http://localhost:3088/chain: return the chain stored in the node
+* http://localhost:3088/transactions/new: add a new transaction to the current node
+* http://localhost:3088/chain: return the chain stored in the current node
 * http://localhost:3088/nodes: return the list of nodes participating in the block chain
 
 
