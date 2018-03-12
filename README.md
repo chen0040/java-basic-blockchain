@@ -17,6 +17,15 @@ java -jar basic-blockchain.jar
 
 This will start the block chain node at http://localhost:3088
 
+Now to run a second basic block chain node:
+
+```bash
+java -jar basic-blockchain.jar http://localhost:3088
+```
+
+This will start the second block chain node at http://localhost:3089 and uses the node at http://localhost:3088 as the
+seed node to broadcast its ip address.
+
 
 
 
