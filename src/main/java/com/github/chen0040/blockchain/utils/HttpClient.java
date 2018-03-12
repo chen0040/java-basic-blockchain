@@ -1,6 +1,7 @@
 package com.github.chen0040.blockchain.utils;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -16,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -86,6 +88,13 @@ public class HttpClient implements Serializable {
       }
 
       return json;
+   }
+
+   public static <T> String postArray(final String url, List<T> a) {
+      String json = JSON.toJSONString(a, SerializerFeature.BrowserCompatible);
+      Map<String, String> headers = new HashMap<>();
+      headers.put("Content-Type", "application/json");
+      return post(url, json, headers);
    }
 
    public static String post(final String url, String body, Map<String, String> headers) {

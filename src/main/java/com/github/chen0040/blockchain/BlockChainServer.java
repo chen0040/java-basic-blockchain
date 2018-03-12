@@ -2,7 +2,10 @@ package com.github.chen0040.blockchain;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.github.chen0040.blockchain.utils.HttpClient;
 import com.github.chen0040.blockchain.utils.IpTools;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Spark;
@@ -11,6 +14,7 @@ import spark.Spark;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
 
 import static spark.Spark.get;
 import static spark.Spark.post;
@@ -21,12 +25,41 @@ public class BlockChainServer {
     private static final Logger logger = LoggerFactory.getLogger(BlockChainServer.class);
     private static BlockChain chain;
 
+    private static ListeningExecutorService executor = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(10));
+
     public static void main(String[] args) {
+
+        for(String arg: args) {
+            logger.info("arg: {}", arg);
+        }
+
+        String seed = "http://localhost:3088";
+        if(args.length >= 1) {
+            seed = args[0];
+        }
+
+        logger.info("block chain seed node: {}", seed);
 
         int chainPort = IpTools.getAvailablePort(3088);
 
         chain = new BlockChain(chainPort);
         port(chainPort);
+
+        logger.info("Starting block chain node at {}", chain.getId());
+
+        final String seedIp = seed;
+        executor.submit(() -> {
+            try {
+                Thread.sleep(1000L);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            logger.info("broad this node {} ...", chain.getId());
+            chain.broadCast(seedIp);
+
+        });
+
 
         get("/kill", (req, res) -> {
             new Thread(()->{
@@ -51,12 +84,31 @@ public class BlockChainServer {
         });
 
         post("/nodes/register", (req, res) -> {
+            logger.info("nodes registration invoked at {}", chain.getId());
             List<String> nodes = JSON.parseArray(req.body(), String.class);
             int total_nodes = chain.register(nodes);
             res.status(201);
             Map<String, Object> result = new HashMap<>();
             result.put("message", "New nodes have been added");
             result.put("total_nodes", total_nodes);
+            res.header("Content-Type", "application/json");
+            return JSON.toJSONString(result, SerializerFeature.BrowserCompatible);
+        });
+
+        post("/nodes/broadcast_ip", (req, res) -> {
+            logger.info("broadcast api invoked at {}", chain.getId());
+           List<String> nodes = JSON.parseArray(req.body(), String.class);
+           int total_nodes = chain.register(nodes);
+           executor.submit(() -> {
+               for (String node : chain.getNodes()) {
+                   HttpClient.postArray(node + "/nodes/register", nodes);
+               }
+           });
+            Map<String, Object> result = new HashMap<>();
+            result.put("message", "New nodes have been added and broadcasted");
+            result.put("total_nodes", total_nodes);
+
+            res.status(201);
             res.header("Content-Type", "application/json");
             return JSON.toJSONString(result, SerializerFeature.BrowserCompatible);
         });

@@ -6,6 +6,8 @@ import com.github.chen0040.blockchain.utils.IpTools;
 import com.google.common.hash.Hashing;
 import lombok.Getter;
 import lombok.Setter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -17,9 +19,10 @@ public class BlockChain {
     private List<Transaction> currentTransactions = new ArrayList<>();
     private Set<String> nodes = new HashSet<>();
     private final String id;
+    private static final Logger logger = LoggerFactory.getLogger(BlockChain.class);
 
     public BlockChain(int port){
-        id = IpTools.getIpAddress() + ":" + port;
+        id = "http://" + IpTools.getIpAddress() + ":" + port;
     }
 
     public Block newBlock(long proof) {
@@ -88,6 +91,7 @@ public class BlockChain {
     }
 
     public void registerNode(String url) {
+        if(url.equals(id)) return;
         nodes.add(url);
     }
 
@@ -163,12 +167,19 @@ public class BlockChain {
     }
 
     public int register(List<String> nodes) {
-        this.nodes.addAll(nodes);
+        for(String node : nodes) {
+            registerNode(node);
+        }
         return this.nodes.size();
     }
 
 
-
-
-
+    public void broadCast(String seedIp) {
+        if(id.equals(seedIp)) return;
+        List<String> a= new ArrayList<>();
+        a.add(id);
+        String url = seedIp + "/nodes/broadcast_ip";
+        logger.info("broad cast this ip {} to {}", id, url);
+        HttpClient.postArray(url, a);
+    }
 }
