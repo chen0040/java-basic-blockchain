@@ -125,6 +125,14 @@ public class IpTools {
         }
     }
 
+    public static int getAvailablePort(int port) {
+        if(isPortAvailable(port)){
+            return port;
+        } else {
+            return getNextAvailablePort(port);
+        }
+    }
+
 
     public static int getNextAvailablePortWithRandomDelay(int port, Random random) {
         int nextPort = port + 1;
