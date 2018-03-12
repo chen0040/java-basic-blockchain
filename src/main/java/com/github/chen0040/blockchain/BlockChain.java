@@ -2,6 +2,7 @@ package com.github.chen0040.blockchain;
 
 import com.alibaba.fastjson.JSON;
 import com.github.chen0040.blockchain.utils.HttpClient;
+import com.github.chen0040.blockchain.utils.IpTools;
 import com.google.common.hash.Hashing;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,6 +16,11 @@ public class BlockChain {
     private List<Block> chain = new ArrayList<>();
     private List<Transaction> currentTransactions = new ArrayList<>();
     private Set<String> nodes = new HashSet<>();
+    private final String id;
+
+    public BlockChain(int port){
+        id = IpTools.getIpAddress() + ":" + port;
+    }
 
     public Block newBlock(long proof) {
         return newBlock(proof, null);
@@ -135,7 +141,31 @@ public class BlockChain {
         return HttpClient.getArray(url + "/chain", Block.class);
     }
 
+    public MineResult mine(){
+        Block lastBlock = lastBlock();
+        long lastProof = lastBlock.getProof();
+        long proof = proofOfWork(lastProof);
 
+        newTransaction("0", id, 1);
+
+        String prevHash = hash(lastBlock);
+        Block newBlock = newBlock(proof, prevHash);
+
+        MineResult result = new MineResult();
+
+        result.setIndex(newBlock.getIndex());
+        result.setMessage("New Block Forged");
+        result.setPrevHash(prevHash);
+        result.setProof(proof);
+        result.setTransactions(newBlock.getTransactions());
+
+        return result;
+    }
+
+    public int register(List<String> nodes) {
+        this.nodes.addAll(nodes);
+        return this.nodes.size();
+    }
 
 
 
