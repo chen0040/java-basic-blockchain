@@ -113,6 +113,11 @@ public class BlockChainServer {
             return JSON.toJSONString(result, SerializerFeature.BrowserCompatible);
         });
 
+        get("/nodes", (req, res) -> {
+            res.header("Content-Type", "application/json");
+            return JSON.toJSONString(chain.getNodes());
+        });
+
         get("/nodes/resolve", (req, res) -> {
            boolean replaced = chain.resolveConflicts();
 

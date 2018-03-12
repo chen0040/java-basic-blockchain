@@ -61,6 +61,9 @@ public class BlockChain {
 
 
     private Block lastBlock() {
+        if(chain.isEmpty()) {
+            return new Block();
+        }
         return chain.get(chain.size()-1);
     }
 

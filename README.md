@@ -26,7 +26,13 @@ java -jar basic-blockchain.jar http://localhost:3088
 This will start the second block chain node at http://localhost:3089 and uses the node at http://localhost:3088 as the
 seed node to broadcast its ip address.
 
+The following api is available for the block chain:
 
+* http://localhost:3088/mine: mine by running proof-of-work
+* http://localhost:3088/nodes/resolve: achieve consensus in the block chain network by resolving conflicts
+* http://localhost:3088/transactions/new: add a new transaction to the block chain
+* http://localhost:3088/chain: return the chain stored in the node
+* http://localhost:3088/nodes: return the list of nodes participating in the block chain
 
 
 
