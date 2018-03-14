@@ -63,6 +63,7 @@ public class BlockChainServer {
 
         get("/kill", (req, res) -> {
             new Thread(()->{
+                chain.deRegisterSelf(seedIp);
                 try {
                     Thread.sleep(100);
                 }
@@ -95,6 +96,19 @@ public class BlockChainServer {
             return JSON.toJSONString(result, SerializerFeature.BrowserCompatible);
         });
 
+        post("/nodes/de-register", (req, res) -> {
+            logger.info("nodes de-registration invoked at {}", chain.getId());
+            List<String> nodes = JSON.parseArray(req.body(), String.class);
+            int total_nodes = chain.deRegister(nodes);
+            res.status(201);
+            Map<String, Object> result = new HashMap<>();
+            result.put("message", "Ndes have been removed");
+            result.put("total_nodes", total_nodes);
+            res.header("Content-Type", "application/json");
+            return JSON.toJSONString(result, SerializerFeature.BrowserCompatible);
+        });
+
+
         post("/nodes/broadcast_ip", (req, res) -> {
             logger.info("broadcast api invoked at {}", chain.getId());
            List<String> nodes = JSON.parseArray(req.body(), String.class);
@@ -106,6 +120,24 @@ public class BlockChainServer {
            });
             Map<String, Object> result = new HashMap<>();
             result.put("message", "New nodes have been added and broadcasted");
+            result.put("total_nodes", total_nodes);
+
+            res.status(201);
+            res.header("Content-Type", "application/json");
+            return JSON.toJSONString(result, SerializerFeature.BrowserCompatible);
+        });
+
+        post("/nodes/broadcast_de_registration", (req, res) -> {
+            logger.info("broadcast de-registration invoked at {}", chain.getId());
+            List<String> nodes = JSON.parseArray(req.body(), String.class);
+            int total_nodes = chain.deRegister(nodes);
+            executor.submit(() -> {
+                for (String node : chain.getNodes()) {
+                    HttpClient.postArray(node + "/nodes/de-register", nodes);
+                }
+            });
+            Map<String, Object> result = new HashMap<>();
+            result.put("message", "Nodes have been removed and de-registration action broadcasted");
             result.put("total_nodes", total_nodes);
 
             res.status(201);

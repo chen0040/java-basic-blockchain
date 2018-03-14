@@ -182,7 +182,23 @@ public class BlockChain {
         List<String> a= new ArrayList<>();
         a.add(id);
         String url = seedIp + "/nodes/broadcast_ip";
-        logger.info("broad cast this ip {} to {}", id, url);
+        logger.info("broad cast this ip {} to {}", seedIp, url);
         HttpClient.postArray(url, a);
+    }
+
+    public void deRegisterSelf(String seedIp) {
+        if(id.equals(seedIp)) return;
+        List<String> a= new ArrayList<>();
+        a.add(id);
+        String url = seedIp + "/nodes/broadcast_de_registration";
+        logger.info("broad cast the de-registration of this ip {} to {}", seedIp, url);
+        HttpClient.postArray(url, a);
+    }
+
+    public int deRegister(List<String> nodes) {
+        for(String node : nodes) {
+            this.nodes.remove(node);
+        }
+        return this.nodes.size();
     }
 }
