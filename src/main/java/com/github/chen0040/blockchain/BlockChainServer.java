@@ -63,7 +63,7 @@ public class BlockChainServer {
 
         get("/kill", (req, res) -> {
             new Thread(()->{
-                chain.deRegisterSelf(seedIp);
+
                 try {
                     Thread.sleep(100);
                 }
@@ -191,6 +191,10 @@ public class BlockChainServer {
             }
         });
 
-        Runtime.getRuntime().addShutdownHook(new Thread(Spark::stop));
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            chain.deRegisterSelf(seedIp);
+            Spark.stop();
+
+        }));
     }
 }
